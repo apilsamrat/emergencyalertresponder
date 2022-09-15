@@ -57,13 +57,13 @@ class _DrawerPageState extends State<DrawerPage> {
       photoUrl = user!.photoURL.toString();
     });
     await FirebaseFirestore.instance
-        .doc("users/${FirebaseAuth.instance.currentUser!.uid}")
+        .doc("responders/${FirebaseAuth.instance.currentUser!.uid}")
         .get()
         .then((value) {
       var data = value.data();
       setState(() {
         isVerificationRequestSent = data!["verificationRequestSent"] ?? false;
-        isAccountVerified = data["isAccountVerified"] ?? false;
+        isAccountVerified = data["isResponderVerified"] ?? false;
         isLoading = false;
       });
     });

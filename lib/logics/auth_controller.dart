@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:emergencyalertresponder/layouts/alert_responder_to_verify.dart';
+import 'package:emergencyalertresponder/layouts/reporters_cant_login_screen.dart';
 
 import '../layouts/home.dart';
 import '../layouts/login.dart';
@@ -10,7 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-SharedPreferences? prefs;
+late SharedPreferences prefs;
 User? user;
 String resultLoginUser = "Welcome";
 String resultCreateUser = "success";
@@ -21,6 +22,7 @@ class AuthUser {
   String _email = "";
   String _password = "";
   late BuildContext _context;
+
   AuthUser({required email, required password, required BuildContext context}) {
     _email = email;
     _password = password;
@@ -28,6 +30,12 @@ class AuthUser {
 
     resultLoginUser = "success";
     resultCreateUser = "success";
+
+    initialize();
+  }
+
+  initialize() async {
+    prefs = await SharedPreferences.getInstance();
   }
 
   Future<UserCredential?> login() async {
@@ -44,11 +52,28 @@ class AuthUser {
         isresponderVerified = data?["isResponderVerified"] ?? false;
       });
 
+      await FirebaseFirestore.instance
+          .doc("users/${FirebaseAuth.instance.currentUser!.uid}")
+          .get()
+          .then((value) async {
+        if (value.exists) {
+          AwesomeToaster.showLongToast(
+              context: _context,
+              duration: const Duration(seconds: 5),
+              msg: "Reporters cannot login as a resonder");
+          await prefs.clear();
+          await Navigator.pushAndRemoveUntil(
+              _context,
+              MaterialPageRoute(
+                  builder: (context) => const ReportersCantLogin()),
+              (route) => false);
+        }
+      });
+
       if (userCred!.user != null) {
-        prefs = await SharedPreferences.getInstance();
-        prefs?.setString("email", _email);
-        prefs?.setString("password", _password);
-        prefs?.setBool("isResponderLoggedinBefore", true);
+        prefs.setString("email", _email);
+        prefs.setString("password", _password);
+        prefs.setBool("isResponderLoggedinBefore", true);
         if (userCred!.user!.emailVerified == true) {
           if (isresponderVerified == true) {
             Navigator.pushAndRemoveUntil(
@@ -112,9 +137,9 @@ class AuthUser {
 
         if (value.user != null) {
           prefs = await SharedPreferences.getInstance();
-          prefs?.setString("email", _email);
-          prefs?.setString("password", _password);
-          prefs?.setBool("isResponderLoggedinBefore", true);
+          prefs.setString("email", _email);
+          prefs.setString("password", _password);
+          prefs.setBool("isResponderLoggedinBefore", true);
         }
         AwesomeToaster.showToast(
             context: _context, msg: "Account created successfully");

@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../layouts/home.dart';
 import '../layouts/toaster.dart';
 import '../resources/colors.dart';
@@ -7,6 +9,7 @@ import 'package:flutter/material.dart';
 
 TextEditingController _emailPhone = TextEditingController();
 TextEditingController _password = TextEditingController();
+late SharedPreferences _prefs;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,6 +19,16 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  @override
+  void initState() {
+    super.initState();
+    initial();
+  }
+
+  initial() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -129,19 +142,29 @@ class _LoginPageState extends State<LoginPage> {
                                 style: TextStyle(color: Colors.grey)),
                             TextButton.icon(
                               icon: const Icon(
-                                Icons.facebook,
+                                Icons.wifi_off_rounded,
                                 color: Colors.blue,
                               ),
                               onPressed: () {
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: ((context) =>
-                                            const HomePage())),
-                                    (route) => false);
+                                if (_prefs.getBool(
+                                            "isResponderLoggedinBefore") !=
+                                        null &&
+                                    _prefs.getBool(
+                                            "isResponderLoggedinBefore") ==
+                                        true) {
+                                  Navigator.pushAndRemoveUntil(context,
+                                      MaterialPageRoute(builder: ((context) {
+                                    return const HomePage();
+                                  })), (route) => false);
+                                } else {
+                                  AwesomeToaster.showToast(
+                                      context: context,
+                                      msg:
+                                          "You have not logged in as a responder before");
+                                }
                               },
                               label: const Text(
-                                "Login with Facebook",
+                                "EXPLORE OFFLINE",
                                 style: TextStyle(color: Colors.blue),
                               ),
                               style: ButtonStyle(

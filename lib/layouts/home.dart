@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencyalertresponder/layouts/drawer.dart';
 import 'package:emergencyalertresponder/layouts/home_allreports.dart';
+import 'package:emergencyalertresponder/layouts/home_livereports.dart';
 import 'package:emergencyalertresponder/resources/screen_sizes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -196,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     _selectedIndex == 0
-                        ? const AllReports()
+                        ? const LiveReports()
                         : const AllReports(), //SavedReports(),
                   ],
                 ),

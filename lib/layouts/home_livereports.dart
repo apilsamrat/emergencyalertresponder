@@ -3,14 +3,16 @@ import 'package:flutter/cupertino.dart';
 
 import 'list_card.dart';
 
-class AllReports extends StatefulWidget {
-  const AllReports({Key? key}) : super(key: key);
+var before24Hr = Timestamp.now();
+
+class LiveReports extends StatefulWidget {
+  const LiveReports({Key? key}) : super(key: key);
 
   @override
-  State<AllReports> createState() => _AllReportsState();
+  State<LiveReports> createState() => _LiveReportsState();
 }
 
-class _AllReportsState extends State<AllReports> {
+class _LiveReportsState extends State<LiveReports> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -33,7 +35,7 @@ class _AllReportsState extends State<AllReports> {
                 itemBuilder: ((context, index) {
                   return listerAllReports(
                       snap: snapshot.data.docs[index],
-                      isLiveReport: false,
+                      isLiveReport: true,
                       context: context);
                 })),
           );

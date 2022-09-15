@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergencyalertresponder/logics/imagefullview.dart';
 import '../resources/colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'toaster.dart';
-
+String? name;
+String? email;
+String? _photoUrl;
 String? pp;
 String? front;
 String? back;
@@ -15,15 +16,18 @@ String? documentNumber;
 String? profession;
 
 bool isLoading = true;
+late String uid;
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ViewReporterProfile extends StatefulWidget {
+  ViewReporterProfile({super.key, required userId}) {
+    uid = userId;
+  }
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ViewReporterProfile> createState() => _ViewReporterProfileState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ViewReporterProfileState extends State<ViewReporterProfile> {
   @override
   void initState() {
     super.initState();
@@ -32,8 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void initialize() async {
     FirebaseFirestore.instance
-        .doc(
-            "responders/${FirebaseAuth.instance.currentUser!.uid}/documents/${FirebaseAuth.instance.currentUser!.uid}")
+        .doc("users/$uid/documents/$uid")
         .get()
         .then((value) {
       var data = value.data();
@@ -47,13 +50,21 @@ class _ProfilePageState extends State<ProfilePage> {
         isLoading = false;
       });
     });
+    FirebaseFirestore.instance.doc("users/$uid").get().then((value) {
+      var data = value.data();
+      setState(() {
+        name = data!["fullName"];
+        email = data["email"];
+        _photoUrl = data["photoUrl"];
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Profile'),
+          title: const Text("Reporter's Profile"),
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -69,24 +80,25 @@ class _ProfilePageState extends State<ProfilePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        CircleAvatar(
-                          minRadius: 50,
-                          maxRadius: 150,
-                          foregroundImage: NetworkImage(
-                            FirebaseAuth.instance.currentUser!.photoURL
-                                .toString(),
-                          ),
-                          child: ClipOval(
-                            child: CupertinoActivityIndicator(
-                              radius: 20,
-                              color: white,
+                        InkWell(
+                          onTap: (() {
+                            showImage(
+                                context: context, image: _photoUrl.toString());
+                          }),
+                          child: CircleAvatar(
+                            minRadius: 50,
+                            maxRadius: 150,
+                            foregroundImage: NetworkImage(_photoUrl.toString()),
+                            child: ClipOval(
+                              child: CupertinoActivityIndicator(
+                                radius: 20,
+                                color: white,
+                              ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                            FirebaseAuth.instance.currentUser!.displayName ??
-                                'Unknown',
+                        Text(name ?? 'Unknown',
                             style: TextStyle(
                               fontSize: 20,
                               color: red,
@@ -94,45 +106,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             )),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                              FirebaseAuth.instance.currentUser!.email ??
-                                  'Unknown',
+                          child: Text(email ?? 'Unknown',
                               style: TextStyle(
                                 color: blue,
                                 fontSize: 15,
                               )),
-                        ),
-                        SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: TextButton(
-                            onPressed: () {
-                              AwesomeToaster.showToast(
-                                  context: context,
-                                  msg: "Editing The Profile is not Available");
-                            },
-                            style: ButtonStyle(
-                                minimumSize: MaterialStateProperty.all(
-                                    const Size(125, 40)),
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.blue)),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Text(
-                                  "Edit Profile  ",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Icon(
-                                  CupertinoIcons.arrow_right_circle_fill,
-                                  color: Colors.white,
-                                ),
-                              ],
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -144,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           child: Column(children: [
-                            const Text("Your Legal Profile",
+                            const Text("Reporter's Legal Profile",
                                 style: TextStyle(
                                     fontFamily: "vt323",
                                     fontSize: 22,
@@ -194,9 +172,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             SizedBox(
                               height: 100,
-                              child: CachedNetworkImage(
-                                imageUrl: front ?? "",
-                                fit: BoxFit.cover,
+                              child: InkWell(
+                                onTap: () {
+                                  showImage(context: context, image: front!);
+                                },
+                                child: CachedNetworkImage(
+                                  imageUrl: front ?? "",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                             Padding(
@@ -213,9 +196,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             SizedBox(
                               height: 100,
-                              child: CachedNetworkImage(
-                                imageUrl: back ?? "",
-                                fit: BoxFit.cover,
+                              child: InkWell(
+                                onTap: () {
+                                  showImage(context: context, image: back!);
+                                },
+                                child: CachedNetworkImage(
+                                  imageUrl: back ?? "",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                             Padding(
@@ -232,9 +220,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             SizedBox(
                               height: 100,
-                              child: CachedNetworkImage(
-                                imageUrl: pp ?? "",
-                                fit: BoxFit.cover,
+                              child: InkWell(
+                                onTap: () {
+                                  showImage(context: context, image: pp!);
+                                },
+                                child: CachedNetworkImage(
+                                  imageUrl: pp ?? "",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ]),

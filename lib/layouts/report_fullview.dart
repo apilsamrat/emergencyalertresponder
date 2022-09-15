@@ -1,16 +1,16 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emergencyalertresponder/logics/data_view_logic.dart';
+import 'package:emergencyalertresponder/layouts/view_reporterprofile.dart';
+import 'package:emergencyalertresponder/logics/imagefullview.dart';
 import 'package:flutter/material.dart';
 
 import '../resources/colors.dart';
-import 'toaster.dart';
 
 late Map<String, dynamic> data;
 Map<String, dynamic> reporterData = {};
 
 class ReportDetails extends StatefulWidget {
   ReportDetails({super.key, fullData}) {
-    data = fullData;
     data = fullData;
   }
 
@@ -49,10 +49,11 @@ class _ReportDetailsState extends State<ReportDetails> {
             children: [
               InkWell(
                 onTap: () {
-                  showImage(context: context, data: data);
+                  showImage(context: context, image: data["imageUrl"]);
                 },
-                child: Image.network(
-                  data["imageUrl"].toString(),
+                child: CachedNetworkImage(
+                  imageUrl: data["imageUrl"].toString(),
+                  height: 200,
                 ),
               ),
               Container(
@@ -203,8 +204,13 @@ class _ReportDetailsState extends State<ReportDetails> {
                           child: MaterialButton(
                             color: blue,
                             onPressed: () {
-                              AwesomeToaster.showToast(
-                                  context: context, msg: "View Profile");
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) =>
+                                          ViewReporterProfile(
+                                            userId: data["userId"],
+                                          ))));
                             },
                             child: Text("View Profile",
                                 style: TextStyle(
