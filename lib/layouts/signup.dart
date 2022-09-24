@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencyalertresponder/layouts/verify_email.dart';
-import '../layouts/home.dart';
 import '../resources/colors.dart';
 import '../layouts/login.dart';
 import '../logics/auth_controller.dart';

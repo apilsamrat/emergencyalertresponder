@@ -6,6 +6,7 @@ import 'package:emergencyalertresponder/resources/screen_sizes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:animated_flip_counter/animated_flip_counter.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../resources/colors.dart';
 import 'package:flutter/material.dart';
@@ -127,6 +128,41 @@ class _HomePageState extends State<HomePage> {
         onWillPop: () => _onWillPop(),
         child: Scaffold(
             appBar: AppBar(
+              actions: [
+                const SizedBox(height: 10),
+                if (kIsWeb)
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: InkWell(
+                        onTap: () {
+                          launchUrlString(
+                            "https://bit.ly/alertresponder",
+                            mode: LaunchMode.platformDefault,
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.android_rounded,
+                                  size: 20, color: Colors.white),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                "Download For Android",
+                                style: TextStyle(
+                                    fontFamily: "vt323",
+                                    fontSize: 17,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        )),
+                  ),
+              ],
               elevation: 0.5,
               title: const Text(
                 'Emergency Alert Responder',
