@@ -125,7 +125,6 @@ class AuthUser {
           "uid": value.user!.uid,
           "email": _email,
           "fullName": fullName,
-          "pswd": pswd,
           "isResponderVerified": false,
         });
       }).then((value) async {
